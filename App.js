@@ -10,7 +10,7 @@ const Stack = createStackNavigator();
 export default function App() {
 
   renderScreens = () => {
-    return screens.map(({ component: Component, name, title }, i) => {
+    return screens.map(({ component: Component, name, title, options = {} }, i) => {
       return (
         <Stack.Screen
           key={i}
@@ -18,6 +18,7 @@ export default function App() {
           component={Component}
           options={{
             title,
+            ...options
           }}
         />
       )

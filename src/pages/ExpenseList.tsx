@@ -1,103 +1,13 @@
-import React, { Component } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import React, { Component, useEffect, useState } from 'react';
+import { Modal, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { getTransactions } from '../api/expenseList';
+import RefreshIcon from '../assets/SVG/refresh.svg';
 import CircularIcon from '../components/CircularIcon/CircularIcon';
 import COMMON_STYLES from '../styles/textStyles';
-import { CAR, FOOD, MEDICAL, MOBILE_RECHARGE, PET, SALARY, TRANSACTION_TYPES } from '../utils/CONSTANTS';
+import { TRANSACTION_TYPES } from '../utils/CONSTANTS';
+import isEmpty from '../utils/isEmpty';
 
-const data = [
-    {
-        sectionHeader: 'Today',
-        data: [
-            {
-                categoryName: CAR,
-                amount: 2000,
-            },
-            {
-                categoryName: PET,
-                amount: 8000,
-            },
-            {
-                categoryName: MOBILE_RECHARGE,
-                amount: 400,
-            },
-        ]
-    },
-    {
-        sectionHeader: 'Yesterday',
-        data: [
-            {
-                categoryName: SALARY,
-                amount: 40000,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-            {
-                categoryName: MEDICAL,
-                amount: 470,
-            },
-            {
-                categoryName: FOOD,
-                amount: 10,
-            },
-        ]
-    },
-]
-
-const renderExpenseItem = (item, Icon: typeof Component, isExpense: boolean) => {
+const renderTransaction = (item, Icon: typeof Component, isExpense: boolean) => {
     return (
         <View style={[
             styles.horizontalSpacing,
@@ -136,16 +46,49 @@ const renderExpenseItem = (item, Icon: typeof Component, isExpense: boolean) => 
 }
 
 const ExpenseList = ({ navigation }) => {
+
+    const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        // getTransactions()
+        //     .then((x) => {
+        //         setData(x);
+        //         setIsLoading(false);
+        //     })
+        //     .catch((x) => {
+        //         setIsLoading(false);
+        //     })
+        //     .finally(() => {
+        //         setIsLoading(false);
+        //     })
+    }, []);
+
+    useEffect(() => {
+        // const subscribe = navigation.addListener('focus', () => {
+        //     setIsLoading(true);
+        //     getTransactions()
+        //         .then((x) => {
+        //             setData(x);
+        //             setIsLoading(false);
+        //         })
+        //         .catch((err) => {
+        //             setIsLoading(false);
+        //         })
+        // });
+        // return subscribe;
+    }, [navigation])
+
     const onActionButtonPress = () => {
         navigation.navigate('ExpenseEntry');
     }
 
     return (
-        <View style={{ position: 'relative' }}>
-            <SectionList
+        <View style={{ position: 'relative', flex: 1, paddingBottom: 65 }}>
+            {!isEmpty(data.length) ? <SectionList
                 renderItem={({ item }) => {
                     const { isExpense, icon: Icon } = TRANSACTION_TYPES.find(x => x.type === item.categoryName);
-                    return renderExpenseItem(item, Icon, isExpense);
+                    return renderTransaction(item, Icon, isExpense);
                 }}
                 sections={data}
                 renderSectionHeader={({ section }) => {
@@ -164,7 +107,7 @@ const ExpenseList = ({ navigation }) => {
                 }}
                 keyExtractor={(item, index) => item.categoryName + item.amount + index}
                 stickySectionHeadersEnabled
-            />
+            /> : null}
             <Pressable style={{ position: 'absolute', bottom: '2%', right: '4%' }} onPress={onActionButtonPress}>
                 <View style={{
                     backgroundColor: 'green',
@@ -177,6 +120,16 @@ const ExpenseList = ({ navigation }) => {
                     <Text style={[COMMON_STYLES.whiteText, { fontSize: 48, lineHeight: 55 }]}>+</Text>
                 </View>
             </Pressable>
+            {isLoading && (
+                <Modal
+                    transparent
+                    animationType={'fade'}
+                >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <RefreshIcon width={48} height={48} fill={'#22d336'} />
+                    </View>
+                </Modal>
+            )}
         </View >
     )
 }
